@@ -6,7 +6,8 @@
     <meta name="description" content="exploring COmpiler OPtimizations">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/x-icon" href="../../images/icon.png">
-	<link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/themes/prism.min.css" rel="stylesheet" />
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/themes/prism-tomorrow.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/prism.min.js"></script>
   </head>
   <body>
     <div class="banner">
@@ -113,9 +114,6 @@ std::unordered_map&lt;Value *, bool&gt; unsafePointers;</code></pre>
 		<li> All the instructions that requires nullchecks are the first instruction of every <code class="lang-cpp">NotNullBB</code>. LLVM IR files are present inside <a class="link" href="https://github.com/hyouteki/problm/tree/main/nullchecks/nullchecks_opt_ll" target="_blank"><mark>nullchecks_opt_ll</mark></a>. </li>
 	  </ol>
 	</div>
-
 	
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/prism.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/components/prism-markup.min.js"></script>
   </body>
 </html>
