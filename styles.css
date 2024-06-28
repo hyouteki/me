@@ -41,6 +41,20 @@ mark {
 	border-bottom: 8px solid #332f2d;
 }
 
+/*  PRISM-JS STYLES */
+pre[class*="language-"], code[class*="language-"] {
+    background: transparent !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+pre {
+    margin: 0;
+}
+code[class*="language-"] * {
+    background: transparent !important;
+}
+/* END */
+
 /* TEXT SELECTION COLOR */
 ::-moz-selection {
   color: #afe29c;
@@ -165,18 +179,6 @@ div.s {
 	font-family: 'NerdFont', monospace;
 	background-color: #323232;
 	border-bottom: 8px solid #292929;
-}
-
-pre[class*="language-"], code[class*="language-"] {
-    background: transparent !important;
-    padding: 0 !important;
-    margin: 0 !important;
-}
-pre {
-    margin: 0;
-}
-code[class*="language-"] * {
-    background: transparent !important;
 }
 
 div.p {

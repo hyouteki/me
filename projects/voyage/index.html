@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Voyage - Projects</title>
+    <link rel="stylesheet" href="../../styles.css">
+    <meta name="description" content="Voyage - Immediate Mode GUI Application Framework">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="../../images/icon.png">
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/themes/prism-tomorrow.min.css" rel="stylesheet">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/prism.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-c.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-bash.min.js"></script>
+  </head>
+  <body>
+    <div class="banner">
+      <a href="../../projects.html" class="banner-button">
+        <button>Go Back</button>
+      </a>
+      <h1 style="text-align: center;">Voyage - Immediate Mode GUI Application Framework</h1>
+    </div>
+
+	<div class="s" style="margin-top: 20px;">
+	  <img src="https://github.com/hyouteki/voyage/blob/main/images/logo.png?raw=true" class="thumbnail" width="100%" height="100%"/>
+	</div>
+
+	<div class="s">
+	  <video controls width="100%">
+		<source src="https://github.com/hyouteki/voyage/assets/108230497/7cec380d-fa85-4ed7-808b-cb2d5e473f27" type="video/mp4">
+      </video>
+	</div>
+
+	
+	<div class="s"><pre><code class="language-c">#include "export.h"
+
+char *lorem = "Lorem ipsum dolor sit amet, ...";
+
+void buttonOnClick() {
+    printf("Menu button clicked\n");
+}
+
+int main() {
+    Voyage_Setup(900, 720, 60, "Voyage Demo", FLAG_WINDOW_RESIZABLE);
+    
+    Column sidebar = Column_Init(Vector2Dummy, Vector2Dummy, Voyage_Black);
+    Image image = LoadImage("./images/logo.png");
+    Column_AddElement(&sidebar, &ImageContainer_EleInit(&image));
+    Column_AddElement(&sidebar, &Button_EleInit("Menu button 1", &buttonOnClick));
+    Column_AddElement(&sidebar, &Button_EleInit("Menu button 2", NULL));
+    Column_AddElement(&sidebar, &Label_EleInit("Sample label with word wrap"));
+
+    Column canvas = Column_Init(Vector2Dummy, Vector2Dummy, Voyage_DarkBrown);
+    Column_AddElement(&canvas, &Button_EleInit("Button inside canvas", NULL));
+    Column_AddElement(&canvas, &Heading_EleInit("Lorem Ipsum"));
+    Column_AddElement(&canvas, &Label_EleInit(lorem));
+    Column_AddElement(&canvas, &Label_EleInit(lorem));
+    Column_AddElement(&canvas, &Label_EleInit(lorem));
+
+    Row row = Row_Init(Vector2Dummy, Vector2Dummy, 2,
+                       (Column *[]){&sidebar, &canvas}, (u32 []){1, 3});
+    
+    while (!WindowShouldClose()) {
+        Row_Resize(&row, Voyage_ScreenDimen);
+        Row_ScrollEventHandler(&row);
+
+        BeginDrawing();
+        ClearBackground(BLACK);
+        Row_Draw(row);
+        EndDrawing();
+    }
+    CloseWindow();
+    Row_Free(&row);
+    
+    return 0;
+}</code> </pre></div>
+
+	<h1 class="header">Quick Start</h1>
+	<div class="p">
+	  <ul>
+		<li> GNU/Linux<br>
+		  <pre><code class="language-bash">chmod +x build.sh
+./build.sh</pre></code> </li><br>
+		<li> Windows<br>
+		  <ol>
+			<li> Build and install Raylib. </li>
+			<li> Open w64devkit.exe in C:\raylib\w64devkit then navigate to the Voyage dir and type the following.</li>
+		  </ol>
+		<pre><code class="language-bash">chmod +x build.sh
+./build.sh</pre></code> </li>
+	  </ul>
+	</div>
+
+    <a class="link" href="https://github.com/hyouteki/voyage" target="_blank">
+      <button class="move-right">Repository</button>
+    </a>
+    <a class="link" href="https://github.com/hyouteki/voyage/tree/main/LICENSE" target="_blank">
+      <button class="move-right">License GPL-3.0</button>
+    </a>
+  </body>
+</html>
+

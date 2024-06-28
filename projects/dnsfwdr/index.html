@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>DNSfwdr - Projects</title>
+    <link rel="stylesheet" href="../../styles.css">
+    <meta name="description" content="DNSfwdr - DNS forwarder in C">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="../../images/icon.png">
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/themes/prism-tomorrow.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/prism.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-bash.min.js"></script>
+  </head>
+  <body>
+    <div class="banner">
+      <a href="../../projects.html" class="banner-button">
+        <button>Go Back</button>
+      </a>
+      <h1 style="text-align: center;">DNSfwdr - DNS forwarder in C</h1>
+    </div>
+
+	<h1 class="header">Description</h1>
+	<div class="p">
+	  A basic DNS forwarder server in C with capabilities including request caching, request blocking, forwarding requests, and fallback to different authoritative servers when necessary.
+	</div>
+
+	<div class="s">
+	  <img src="https://github.com/hyouteki/dnsfwdr/blob/main/images/server.png?raw=true" class="thumbnail" width="100%" height="100%"/>
+	  DNS Forwarding Server
+	</div>
+
+	<div class="s">
+	  <img src="https://github.com/hyouteki/dnsfwdr/blob/main/images/client.png?raw=true" class="thumbnail" width="100%" height="100%"/>
+	  The client requests the DNS forwarding server (running at localhost:8989) to resolve the address of the domain name "www.google.com"
+	</div>
+
+	<h1 class="header">Quick Start</h1>
+	<div class="p">
+	  <ol>
+		<li> Clone the repository via <code class="language-sh">git clone https://github.com/hyouteki/dnsfwdr</code> </li>
+		<li> Build the project using <code class="language-sh">make</code> </li>
+		<li> Run the DNS forwarding server using <code class="language-sh">./server</code> </li>
+		<li> Test the server using a dummy client via <code class="language-sh">make client</code> </li>
+	  </ol>
+	</div>
+
+	
+	<h1 class="header">References</h1>
+	<div class="p">
+	  <ol>
+		<li> <a class="link" href="https://codingchallenges.fyi/challenges/challenge-dns-forwarder" target="_blank">Coding Challenges - Build Your Own DNS Forwarder</a> </li>
+		<li> <a class="link" href="https://datatracker.ietf.org/doc/html/rfc1035#section-4.1" target="_blank">RFC 1035 Section 4.1.1 - DNS query format</a> </li>
+		<li> <a class="link" href="http://www.cse.yorku.ca/~oz/hash.html" target="_blank">Hash functions - sdbm</a> </li>
+	  </ol>
+	</div>
+	
+      <a class="link" href="https://github.com/hyouteki/dnsfwdr" target="_blank">
+        <button class="move-right">Repository</button>
+      </a>
+	  <a class="link" href="https://github.com/hyouteki/dnsfwdr/tree/main/LICENSE" target="_blank">
+        <button class="move-right">License GPL-3.0</button>
+      </a>
+	
+  </body>
+</html>
+
