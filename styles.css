@@ -41,6 +41,17 @@ mark {
 	border-bottom: 8px solid #332f2d;
 }
 
+/* TEXT SELECTION COLOR */
+::-moz-selection {
+  color: #afe29c;
+  background: #39443a;
+}
+::selection {
+  color: #afe29c;
+  background: #39443a;
+}
+/* END */
+
 body {
 	padding-left: 10px;
 	padding-right: 10px;
@@ -124,8 +135,63 @@ a.link {
 	margin-bottom: 0px;
 }
 
+.header-label {
+	padding-left: 16px;
+	padding-top: 10px;
+	padding-right: 10px;
+	padding-bottom: 10px;
+	border-radius: 5px;
+	font-family: 'NerdFont', monospace;
+	margin-bottom: 0px;
+	max-width: 100%;
+	background-color: #39443a;
+	color: #afe29c;
+	border-bottom: 8px solid #2e362e;
+}
+
+
 .header, p.about {
 	max-width: 100%;
+}
+
+div.s {
+	font-size: 20px;
+	padding-left: 16px;
+	padding-top: 10px;
+	padding-right: 10px;
+	padding-bottom: 10px;
+	border-radius: 5px;
+	margin-bottom: 20px;
+	font-family: 'NerdFont', monospace;
+	background-color: #323232;
+	border-bottom: 8px solid #292929;
+}
+
+pre[class*="language-"], code[class*="language-"] {
+    background: transparent !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+pre {
+    margin: 0;
+}
+code[class*="language-"] * {
+    background: transparent !important;
+}
+
+div.p {
+	font-size: 20px;
+	padding-left: 16px;
+	padding-top: 10px;
+	padding-right: 10px;
+	padding-bottom: 10px;
+	margin-top: 0px;
+	max-width: 100%;
+	margin-bottom: 20px;
+	border-radius: 0px 0px 5px 5px;
+	font-family: 'NerdFont', monospace;
+	background-color: #323232;
+	border-bottom: 8px solid #292929;
 }
 
 p.about{

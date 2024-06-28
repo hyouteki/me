@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>COP - Projects</title>
+    <link rel="stylesheet" href="../../styles.css">
+    <meta name="description" content="exploring COmpiler OPtimizations">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="../../images/icon.png">
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/themes/prism.min.css" rel="stylesheet" />
+  </head>
+  <body>
+    <div class="banner">
+      <a href="../../projects.html" class="banner-button">
+        <button>Go Back</button>
+      </a>
+      <h1 style="text-align: center;">exploring COmpiler OPtimizations</h1>
+    </div>
+
+	<h1 class="header-label">Null pointer dereference detection compiler pass</h1>
+	<h1 class="header">Building the pass from scratch</h1>
+	<div class="p"><pre><code class="language-bash">git clone https://github.com/Systems-IIITD/CSE601
+git clone https://github.com/hyouteki/cop
+mv cop/nullchecks/NullChecks.cpp CSE601/llvm/lib/CodeGen/SafeC/
+sudo apt install cmake ninja-build
+cd CSE601
+mkdir build
+cd build && cp ../scripts/build.sh . && sh build.sh && ninja -j 4
+cd tests && make</code></pre><br>
+	  <mark>Note</mark>: If you encounter error such as
+	  <br><br><pre><code class="language-bash">/home/puneetku/CSE601/llvm/utils/benchmark/src/benchmark_register.h:17:30: error: ‘numeric_limits’ is not a member of ‘std’
+17 |   static const T kmax = std::numeric_limits<T>::max();</code></pre><br>
+	  
+	  Try adding <code class="language-c">#include&lt;limits&gt;</code> in the header file and re-building the project.<br>
+	  <mark>Note</mark>: For subsequent builds just run <code class="language-sh">cd build && ninja -j 4</code> inside 'CSE601' directory.<br>
+	  <mark>Note</mark>: For testing the pass run the following command <code class="language-sh">cd tests/PA1/ && make clean && make -B</code> inside 'CSE601' directory.</div>
+
+	<h1 class="header">How does this work</h1>
+	<div class="p">
+	  There are mainly 4 instructions that may lead to segmentation faults while dereferencing null pointers.
+	  <ol>
+		<li>Store</li>
+		<li>Load</li>
+		<li>GetElementPtr</li>
+		<li>Call (Indirect)</li>
+	  </ol>
+	  <mark>Naïve solution</mark>: Adding nullchecks before every instructions of these four types. But it will lead to multiple compare and conditional branch instructions.<br>
+	<u>Better solution</u> for this is to use forward data flow analysis to track every pointer and add nullchecks only when we are unsure of it being null safe. <i>(Similar to constant propagation data flow analysis)</i>
+	</div>
+
+	<div class="s">
+	  <pre><code class="language-cpp">std::unordered_map&lt;Value *, std::unordered_set&lt;Value *&gt;&gt; childPointers;
+std::unordered_map&lt;Value *, bool&gt; unsafePointers;</code></pre>
+	  <ol>
+		<li>
+		  <mark>childPointers</mark> maps each pointer to a set of its child pointers. Or in other words every child pointer’s value is dependent upon its parent pointer.<br>
+		  <code class="language-cpp">%a = load i32*, i32** %a.addr;</code> In this example <code class="language-cpp">%a</code> is the child pointer of <code class="language-cpp">%a.addr</code>. As if the value of <code class="language-cpp">%a.addr</code> changes the value present in <code class="language-cpp">%a</code> is corrupted and new value may not be null safe.</li>
+		<li>
+		  <mark>unsafePointers</mark> just tells whether a pointer present in the map is unsafe or not.
+		</li>
+	  </ol>
+	  The <mark>childPointers</mark> map is preserved through out the function, but the <mark>unsafePointers</mark> map resets at each basic block. As from any basic block, one can reach any basic block. Thus any basic block could have modified the pointer thus making them unsafe, so we can't rely on previous observations.
+	</div>
+
+	<h1 class="header">Forward data flow analysis</h1>
+	<div class="p">
+	  <ol>
+		<li> <mark>includeInst</mark> takes in the instruction and both maps. And outputs whether we should add nullchecks for this instruction. Transfer function is present in this API.</li>
+		<li> <mark>processInst</mark> adds nullchecks for the given instruction.</li>
+	  </ol>
+	</div>
+
+	<h1 class="header"><a class="link" href="https://github.com/hyouteki/cop/blob/b808590a4f501e6febeacfb7e6014e468da4f78b/nullchecks/NullChecks.cpp#L81-L112" target="_blank"><mark>Transfer function</mark></a></h1>
+	<div class="p">
+	  Adding nullchecks for current instruction will depend upon <code class="lang-cpp">unsafePointers[basePointer]</code>; if the <code class="lang-cpp">basePointer</code> i.e. <code class="lang-cpp">%a.addr</code> present in the <code class="lang-cpp">unsafePointers</code> then the value itself otherwise the <code class="lang-cpp">basePointer</code> is unsafe by default.
+
+	  <ol>
+		<li> <mark>Store instruction</mark>: When storing a value to a pointer it will make the pointer itself and all the child pointers unsafe. As we might have stored null into <code class="lang-cpp">%a.addr</code> thus making it unsafe when using it to load <code class="lang-cpp">%a</code>.</li> 
+		<li> <mark>Load instruction</mark>: We’ll first add the value operand of the <code class="lang-cpp">basePointer</code> i.e. the loaded value to the <code class="lang-cpp">childPointers</code>.  Then as the loaded pointer is always safe, we’ll write that fact into <code class="lang-cpp">unsafePointers</code>.</li>
+		<li> <mark>GetElementPtr instruction</mark>: Any pointer returned by this instruction will be checked for nullchecks when it is used. And the fact about it being null space will only be stored then.</li>
+		<li> <mark>Call (indirect) instruction</mark>: We’ll just make the function pointer safe and <code class="lang-cpp">basePointer</code> in this case is just the function pointer itself. Reasoning behind making the function pointer safe is explained later.</li>
+		<li> <mark>Alloca & Icmp instruction</mark>: For these instruction, we don’t need to do anything as we are not dereferencing any pointers.</li>
+		<li> <mark>Bitcast instruction</mark>: Same as alloca instruction we don’t need to do anything as we are just type casting the pointer not dereferencing it.</li>
+		<li> <mark>Branch instruction</mark>: This clears the <code class="lang-cpp">unsafePointers</code> map. <i>Reasoning explained above…</i></li>
+		<li> <mark>Ret instruction</mark>: This again does not do anything.</li>
+	  </ol>
+	  Before returning we will always make the <code class="lang-cpp">basePointer</code> mark as safe. Reasoning is that if the current instructions executes after getting through the nullchecks, it means that the pointer is not null. And is safe to use for the coming instruction using that pointer.
+	  </div>
+
+	
+	<h1 class="header">Meet operator</h1>
+	<div class="p">
+	  This does not do anything as <code class="lang-cpp">childPointers</code> is preserved through out the function. And <code class="lang-cpp">unsafePointers</code> is empty at the start of each basic block, or in other words it also does not depend upon the incoming <code class="lang-cpp">unsafePointers</code> map from predecessor basic blocks.
+	</div>
+
+	<h1 class="header">Initialization</h1>
+	<div class="p">
+	  At the start of function <code class="lang-cpp">childPointers</code> is 0 initialized and <code class="lang-cpp">unsafePointers</code> is also 0 initialized at the start of each basic block.
+	</div>
+
+	<h1 class="header">Assumptions</h1>
+	<div class="p">
+	  <ol>
+		<li> Return type of any function is one of these <code class="lang-cpp">void</code>, <code class="lang-cpp">int</code>, <code class="lang-cpp">int *</code>. As the pass is adding default return values as the transmission instructions for the <code class="lang-cpp">NullBB</code> <i>(exhaustive declaration of return instructions).</i> </li>
+		<li> Pointers passed in as function parameters are not taken in account of. Alternatively it is assumed that the function will not modify the pointers that are passed to it. </li>
+		<li> This pass is exhaustively tested on the given 8 test cases and may fail on anything outside the scope of those test cases. </li>
+	  </ol>
+	</div>
+
+	<h1 class="header">Miscellaneous</h1>
+	<div class="p">
+	  <ol>
+		<li> Outputs of all tests are compiled into <a class="link" href="https://github.com/hyouteki/problm/blob/main/nullchecks/nullchecks.out" target="_blank"><mark>nullchecks.out</mark></a>. </li>
+		<li> All the instructions that requires nullchecks are the first instruction of every <code class="lang-cpp">NotNullBB</code>. LLVM IR files are present inside <a class="link" href="https://github.com/hyouteki/problm/tree/main/nullchecks/nullchecks_opt_ll" target="_blank"><mark>nullchecks_opt_ll</mark></a>. </li>
+	  </ol>
+	</div>
+
+	
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/components/prism-markup.min.js"></script>
+  </body>
+</html>

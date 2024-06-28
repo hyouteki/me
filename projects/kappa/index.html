@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Kappa - Projects</title>
+    <link rel="stylesheet" href="../../styles.css">
+    <meta name="description" content="Kappa - Compiler in Rust">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="../../images/icon.png">
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/themes/prism.min.css" rel="stylesheet" />
+  </head>
+  <body>
+    <div class="banner">
+      <a href="../../projects.html" class="banner-button">
+        <button>Go Back</button>
+      </a>
+      <h1 style="text-align: center;">Kappa - Compiler in Rust</h1>
+    </div>
+
+	<h1 class="header">Description</h1>
+	<div class="p">
+	  Compiler implementation for a bespoke statically typed language from scratch written entirely in Rust, which is capable of compiling a program down to native x86_64 assembly.
+	</div>
+
+	<div class="s"><pre><code class="language-js">fn fib(n: int): int {
+    if (n <= 0) {
+	    print("Invalid\n");
+	    return 0;
+    }
+    if (n < 2) {
+	    return n;
+    }
+    return fib(n-1) + fib(n-2);
+}
+			
+fn main(): int {
+    print(fib(4), "\n");
+    return 0;
+} </code> </pre> </div>
+
+	<h1 class="header">Quick Start</h1>
+	<div class="p"><pre><code class="language-bash">cargo run -- compile --felf64 -f ./eg/main.K
+nasm -felf64 ./eg/main.asm -o ./eg/main.o
+ld ./eg/main.o -o ./eg/main
+./eg/main</code></pre></div>	
+
+    <a class="link" href="https://github.com/hyouteki/kappa" target="_blank">
+      <button class="move-right">Repository</button>
+    </a>
+
+    <a class="link" href="https://github.com/hyouteki/kappa/tree/main/LICENSE" target="_blank">
+      <button class="move-right">License MIT</button>
+    </a>
+	
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/components/prism-markup.min.js"></script>
+  </body>
+</html>
+
