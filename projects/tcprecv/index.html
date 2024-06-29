@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>TCPrecv - Projects</title>
+    <link rel="stylesheet" href="../../styles.css">
+    <meta name="description" content="TCPrecv - TCP receiver in C++">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="../../images/icon.png">
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/themes/prism-tomorrow.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/prism.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-bash.min.js"></script>
+  </head>
+  <body>
+    <div class="banner">
+      <a href="../../projects.html" class="banner-button">
+        <button>Go Back</button>
+      </a>
+      <h1 style="text-align: center;">TCPrecv - TCP receiver in C++</h1>
+    </div>
+
+	<h1 class="header">Description</h1>
+	<div class="p">
+	  A simple and reliable implementation of a TCP receiver from scratch in C++. Which is capable of reassembling datagrams in the environment where the network might reorder datagrams, drop them or deliver them more than once.
+	</div>
+
+	<h1 class="header">Build</h1>
+	<div class="p"><pre><code class="language-bash">git clone https://github.com/hyouteki/tcprecv
+cd build && make</pre></code></div>
+
+	<h1 class="header">ByteStream</h1>
+	<div class="p">
+	  A ByteStream is a container that stores a collection of bytes from which bytes can be read or written to. These are some of the properties of this byte stream implementation:
+	  <ol>
+		<li> Bytes are written on the input side and read out from the output side. </li>
+		<li> The byte stream is finite. The writer can end the input and no more bytes can be written. </li>
+		<li> When the reader has read to the end of the stream, it will reach EOF, that is no more available bytes to read </li>
+		<li> It is initialized with a particular capacity which limits the total amount of bytes that can be held in memory at once (which are not read yet). </li>
+		<li> The writer would not be allowed to write into the byte stream if it exceeds the storage capacity. </li>
+		<li> As the reader reads bytes from the stream, the writer is allowed to write more. </li>
+	  </ol>
+	  <mark>Note</mark>: This ByteStream implementation should be used in a single threaded context; as locking or race conditions are not handled. The interface is available here <a class="link" href="https://github.com/hyouteki/tcprecv/blob/main/src/byte_stream.hh" target="_blank"><mark>byte_stream.hh</mark></a> and the implementation here <a class="link" href="https://github.com/hyouteki/tcprecv/blob/main/src/byte_stream.cc" target="_blank"><mark>byte_stream.cc</mark></a>.
+	</div>
+
+	<h1 class="header">Tests - Byte Stream</h1>
+	<div class="p">
+	  <pre><code class="language-bash">cd build
+ctest -R '^byte_stream'</pre></code><br>
+	  <img src="https://github.com/hyouteki/tcprecv/blob/main/assets/byte_stream_test.png?raw=true" class="thumbnail" width="100%" height="100%"/>
+	</div>
+
+	<h1 class="header">Stream Reassembler</h1>
+	<div class="p">
+	  Reassembler is responsible for reassembling the string of bytes obtained from the sender and storing it in the ByteStream. The TCP sender is dividing its byte stream up into short segments (substrings not more than 1460 bytes apiece) so that they can fit inside a datagram. In reality, the network might reorder these datagrams, drop them or deliver them more than once.<br><br>
+
+	  It is the job of the receiver to reassemble the segments into a contiguous stream of bytes that the sender originally intended. This is where reassembler comes into play. The Reassembler receives substrings from the sender which consists of a string of bytes along with an index of the first byte of the string that represents its position within the larger stream. As a simple example, let's say the sender wants to send “abcdefgh” to the receiver and assume that the sender has divided the entire payload into two substrings “abcd” and “efgh”. Now the indexes for these substream will be the following:
+	  <ol>
+		<li> [0] : abcd </li>
+		<li> [4] : efgh </li>
+	  </ol>
+
+	  Now on the receiver end lets say the the datagrams are received in following order (efgh,4) -> (abcd,0). The Reassembler using these unique indexes will paste the substrings into the byte stream in the correct order (abcdefgh). <br><br>
+
+	  The interface is available here <a class="link" href="https://github.com/hyouteki/tcprecv/blob/main/src/stream_reassembler.hh" target="_blank"><mark>stream_reassembler.hh</mark></a> and the implementation here <a class="link" href="https://github.com/hyouteki/tcprecv/blob/main/src/stream_reassembler.cc" target="_blank"><mark>stream_reassembler.cc</mark></a>.
+	</div>
+
+	<h1 class="header">Stream Reassembler Tests</h1>
+	<div class="p">
+	  <img src="https://github.com/hyouteki/tcprecv/blob/main/assets/stream_reassembler_test.png?raw=true" class="thumbnail" width="100%" height="100%"/>
+	</div>
+
+	<h1 class="header">TCP receiver</h1>
+	<div class="p">
+	  TCP receiver accepts a TCPSegment from the sender and utilizes the Reassembler to correctly write the bytes into the byte stream. One thing to note is that apart from accepting the bytes, the TCPReciever also needs to generate messages back to the sender. These 'receiver messages' are responsible for telling the sender:
+	  <ol>
+		<li> Index of 'first unassembled' byte called acknowledgement number or ackno. </li>
+		<li> The available capacity in the output ByteStream. This is called the 'window size'. Together the ackno and window size describe the receiver's window: a range of indexes that the TCP sender is allowed to send. Using the window, the receiver can control the flow of incoming data, making the sender limit how much it sends until the receiver is ready for more. </li>
+	  </ol>
+
+	  The interface is available here <a class="link" href="https://github.com/hyouteki/tcprecv/blob/main/src/tcp_receiver.hh" target="_blank"><mark>tcp_receiver.hh</mark></a> and the implementation here <a class="link" href="https://github.com/hyouteki/tcprecv/blob/main/src/tcp_receiver.cc" target="_blank"><mark>tcp_receiver.cc</mark></a>.
+	</div>
+
+	<h1 class="header">TCP Receiver Tests</h1>
+	<div class="p">
+	  <img src="https://github.com/hyouteki/tcprecv/blob/main/assets/tcp_receiver_test.png?raw=true" class="thumbnail" width="100%" height="100%"/>
+	</div>
+	
+    <a class="link" href="https://github.com/hyouteki/tcprecv" target="_blank">
+      <button class="move-right">Repository</button>
+    </a>
+	<a class="link" href="https://github.com/hyouteki/tcprecv/tree/main/LICENSE" target="_blank">
+      <button class="move-right">License GPL-3.0</button>
+    </a>
+	
+  </body>
+</html>
+
