@@ -163,7 +163,6 @@ a.link {
 	border-bottom: 8px solid #2e362e;
 }
 
-
 .header, p.about {
 	max-width: 100%;
 }
@@ -224,4 +223,12 @@ img.thumbnail {
 	padding-right: 30px;
 	padding-top: 20px;
 	padding-bottom: 20px;
+}
+
+@media all and (max-width: 500px) {
+	button {
+		width: 100%;
+		margin-left: 0;
+		margin-right: 0;
+	}
 }
